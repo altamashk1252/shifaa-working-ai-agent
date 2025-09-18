@@ -162,8 +162,9 @@ class _UserHomeState extends State<UserHome> {
 
     return Directionality(
       textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
-        appBar: AppBar(
+      child:
+      //Scaffold(
+        /*appBar: AppBar(
           title: Column(
             children: [
               // Image widget for your logo or image
@@ -195,153 +196,157 @@ currentScreen: 'home',
 
 
       ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(   // ✅ makes whole body scrollable
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: SosButton(),
-                  ),
-                ),
-
-                // 🔍 Search bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
+        */
+     // body:
+        Material(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(   // ✅ makes whole body scrollable
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: SosButton(),
                     ),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: labelsMap['search'] ?? "Search...",
-                        prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
+
+                  // 🔍 Search bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ),
-                  ),
-                ),
-
-                // 🟦 Grid items
-                GridView.builder(
-                  itemCount: gridItems.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1,
-                  ),
-                  itemBuilder: (context, index) {
-                    final item = gridItems[index];
-                    return InkWell(
-                      onTap: () {
-                        final navigationMap = {
-                         // labelsMap['details']: const RegistrationForm(),
-                          labelsMap['allergies']: AllergiesPage(),
-                          labelsMap['labResults']: LabResultsPage(),
-                          //labelsMap['appointments']: DoctorListPage(),
-                          //labelsMap['payments']: const PaymentDetailsScreen(),
-                          labelsMap['notifications']: const NotificationScreen(),
-                          labelsMap['medications']: const MedicationsScreen(),
-                          labelsMap['immunizations']: const ImmunizationsScreen(),
-                          //labelsMap['hospitalizations']:
-                          //const HospitalizationHistoryScreen(),
-                          labelsMap['measures']: const MeasuresPage(),
-                          labelsMap['talkToMe']: const VoiceAssistantApp(),
-                          //labelsMap['notes']: const NotesPage(),
-                          //labelsMap['procedures']: const ProceduresPage(),
-                        };
-                        final selectedScreen = navigationMap[item['label']];
-                        if (selectedScreen != null) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => selectedScreen),
-                          );
-                        }
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blue.shade700,
-                              Colors.blue.shade400,
-                              Colors.purple.shade400,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blueAccent.withOpacity(0.4),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(item['icon'], size: 40, color: Colors.white),
-                            const SizedBox(height: 10),
-                            Text(
-                              item['label'] ?? '',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          ],
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: labelsMap['search'] ?? "Search...",
+                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 15),
                         ),
                       ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // 🖼 Banners BELOW grid
-                SizedBox(
-                  width: double.infinity,
-                  child: CarouselSlider(
-                    options: CarouselOptions(
-                      height: 230,
-                      autoPlay: true,
-                      autoPlayInterval: const Duration(seconds: 4),
-                      enlargeCenterPage: true,
-                      viewportFraction: 1.0,
                     ),
-                    items: images.map((imagePath) {
-                      return Builder(
-                        builder: (BuildContext context) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              imagePath,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                          );
+                  ),
+
+                  // 🟦 Grid items
+                  GridView.builder(
+                    itemCount: gridItems.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final item = gridItems[index];
+                      return InkWell(
+                        onTap: () {
+                          final navigationMap = {
+                           // labelsMap['details']: const RegistrationForm(),
+                            labelsMap['allergies']: AllergiesPage(),
+                            labelsMap['labResults']: LabResultsPage(),
+                            //labelsMap['appointments']: DoctorListPage(),
+                            //labelsMap['payments']: const PaymentDetailsScreen(),
+                            labelsMap['notifications']: const NotificationScreen(),
+                            labelsMap['medications']: const MedicationsScreen(),
+                            labelsMap['immunizations']: const ImmunizationsScreen(),
+                            //labelsMap['hospitalizations']:
+                            //const HospitalizationHistoryScreen(),
+                            labelsMap['measures']: const MeasuresPage(),
+                            labelsMap['talkToMe']: const VoiceAssistantApp(),
+                            //labelsMap['notes']: const NotesPage(),
+                            //labelsMap['procedures']: const ProceduresPage(),
+                          };
+                          final selectedScreen = navigationMap[item['label']];
+                          if (selectedScreen != null) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => selectedScreen),
+                            );
+                          }
                         },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blue.shade700,
+                                Colors.blue.shade400,
+                                Colors.purple.shade400,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.blueAccent.withOpacity(0.4),
+                                blurRadius: 15,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(item['icon'], size: 40, color: Colors.white),
+                              const SizedBox(height: 10),
+                              Text(
+                                item['label'] ?? '',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
                       );
-                    }).toList(),
+                    },
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 20),
+
+                  // 🖼 Banners BELOW grid
+                  SizedBox(
+                    width: double.infinity,
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: 230,
+                        autoPlay: true,
+                        autoPlayInterval: const Duration(seconds: 4),
+                        enlargeCenterPage: true,
+                        viewportFraction: 1.0,
+                      ),
+                      items: images.map((imagePath) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                imagePath,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
 
 
-      )
+      //)
     );}
   }
 

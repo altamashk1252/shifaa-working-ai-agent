@@ -143,9 +143,11 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                         children: [
                           Icon(Icons.access_time, size: 20, color: Colors.grey[700]),
                           const SizedBox(width: 6),
-                          Text(
-                            '${_getText('time')}: ${_translateTime(med['time']!)}',
-                            style: const TextStyle(fontSize: 16),
+                          Expanded(
+                            child: Text(
+                              '${_getText('time')}: '+'\n'+'${_translateTime(med['time']!)}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
                           ),
                         ],
                       ),

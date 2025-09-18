@@ -120,10 +120,12 @@ class AppCtrl extends ChangeNotifier {
       );
 
       _logger.info("Fetched Connection Details: $connectionDetails, connecting to room...");
-
+      print("Token value is :"+connectionDetails.participantToken);
       await room.connect(
         connectionDetails.serverUrl,
-        connectionDetails.participantToken,
+
+//        "eyJhbGciOiJIUzI1NiJ9.eyJ2aWRlbyI6eyJyb29tSm9pbiI6dHJ1ZSwicm9vbSI6InF1aWNrc3RhcnQtcm9vbSJ9LCJpc3MiOiJBUElFQnI3ZHRQWkRRN2EiLCJleHAiOjE3NTgxOTcxNDcsIm5iZiI6MCwic3ViIjoicXVpY2tzdGFydC11c2VybmFtZSJ9.4nzGsa-8le07sgLwTZE9JIn8ZMoIGtOL5yST3iy1vT4"
+       connectionDetails.participantToken,
       );
 
       _logger.info("Connected to room");
@@ -158,14 +160,14 @@ class AppCtrl extends ChangeNotifier {
     agentScreenState = AgentScreenState.visualizer;
 
     notifyListeners();
-
+Navigator.of(context).pop();
     // Replace current screen with Home/Welcome screen
-    Navigator.pushReplacement(
+   /* Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => const MyHomePage(), // your home screen widget
       ),
-    );
+    );*/
   }
   // Start a 20-second timer to check for agent connection
   void _startAgentConnectionTimer() {

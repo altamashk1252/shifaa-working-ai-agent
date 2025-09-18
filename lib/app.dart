@@ -26,15 +26,22 @@ class _VoiceAssistantAppState extends State<VoiceAssistantApp> {
   }
 
   Future<void> _requestPermissions() async {
-    final cameraStatus = await Permission.camera.request();
-    final micStatus = await Permission.microphone.request();
+    final cameraStatus = await Permission.camera.status;
+    final micStatus = await Permission.microphone.status;
 
-    if (cameraStatus.isGranted && micStatus.isGranted) {
+    if (!cameraStatus.isGranted) await Permission.camera.request();
+    if (!micStatus.isGranted) await Permission.microphone.request();
+
+    final finalCamera = await Permission.camera.status;
+    final finalMic = await Permission.microphone.status;
+
+    if (finalCamera.isGranted && finalMic.isGranted) {
       setState(() => _permissionsGranted = true);
     } else {
       _showPermissionDialog();
     }
   }
+
 
   void _showPermissionDialog() {
     WidgetsBinding.instance.addPostFrameCallback((_) {

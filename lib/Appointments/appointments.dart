@@ -225,13 +225,19 @@ class _UpcomingAppointmentsPageState extends State<UpcomingAppointmentsPage> {
                                             const SizedBox(width: 4),
                                             Text(appointment['date']),
                                             const SizedBox(width: 12),
-                                            const Icon(Icons.access_time,
-                                                size: 16, color: Colors.grey),
-                                            const SizedBox(width: 4),
-                                            Text(appointment['time']),
+
                                           ],
                                         ),
+                                     Row(
+                                       children: [
+                                         const Icon(Icons.access_time,
+                                             size: 16, color: Colors.grey),
+                                         const SizedBox(width: 4),
+                                         Text(appointment['time']),
+                                       ],
+                                     )
                                       ],
+
                                     ),
                                   ),
                                   Container(

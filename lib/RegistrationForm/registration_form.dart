@@ -75,7 +75,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
       );
 
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const UserHome()),
+        MaterialPageRoute(builder: (_) => const MyHomePage()),
       //  MaterialPageRoute(builder: (_) => const MyHomePage()),
       );
     }

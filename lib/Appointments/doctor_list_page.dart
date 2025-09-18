@@ -111,7 +111,8 @@ class _DoctorListPageState extends State<DoctorListPage> {
 
     return Directionality(
       textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
+      child:
+      /*Scaffold(
         appBar: AppBar(
           title: Text(
             "${labelsMap[_languageCode]!['dashboard1']}, $userName",
@@ -135,7 +136,8 @@ class _DoctorListPageState extends State<DoctorListPage> {
 currentScreen: 'doctorslist',
 
         ),
-        body: Column(
+        body:
+      */  Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -248,7 +250,7 @@ currentScreen: 'doctorslist',
             ),
           ],
         ),
-      ),
+    //  ),
     );
   }
 }

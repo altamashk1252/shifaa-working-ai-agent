@@ -93,7 +93,8 @@ class _ProfileState extends State<Profile> {
 
     return Directionality(
       textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
+      child:
+     /* Scaffold(
         appBar: AppBar(
           title: Text(
             "${profileLabels[_languageCode]!['dashboard1']}, $userName",
@@ -116,7 +117,8 @@ class _ProfileState extends State<Profile> {
         drawer: Drawerwidget(currentScreen: 'profile',
 
      ),
-        body: Padding(
+        body:
+        */Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -205,7 +207,7 @@ class _ProfileState extends State<Profile> {
             ],
           ),
         ),
-      ),
+   //   ),
     );
   }
 }

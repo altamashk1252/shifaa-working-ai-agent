@@ -13,9 +13,11 @@ import 'package:provider/provider.dart';
 
 void main() {
   runApp(
+
     ChangeNotifierProvider(
       create: (_) => ctrl.AppCtrl(),
       child: const MyApp(),
+
     ),
   );
 }

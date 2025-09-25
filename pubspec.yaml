@@ -88,6 +88,7 @@ flutter:
 
   assets:
     - assets/images/dmuh.png
+    - assets/images/dmuh_resized.png
     - assets/terminal.png
     - assets/images/user_avatar.jpg
     - assets/images/image2.jpg
@@ -102,7 +103,7 @@ flutter_native_splash:
   web: false
   android_12:
     color: "#FFFFFF"
-    image: 'assets/images/dmuh.png'
+    image: 'assets/images/dmuh_resized.png'
     branding: 'assets/images/shifaa_logo.gif'
 
 

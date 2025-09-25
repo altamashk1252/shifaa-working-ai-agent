@@ -14,14 +14,86 @@ import '../Medications/medications.dart';
 import '../Notifications/notificationscreen.dart';
 import '../voice_assistant_screen.dart';
 
-const Map<String, Map<String, String>> SOSlabels = {
-  // ... (same as before)
+ const Map<String, Map<String, String>> SOSlabels = {
+  'en': {
+    //   'dashboard': 'Shifaa',
+    'sos': 'SOS',
+    'sosActivation': 'SOS Activation',
+    'sosSending': 'Sending SOS in {seconds} seconds...\nTap cancel to abort.',
+    'sosHelpOnWay': '🚨 Help is on the way',
+    'sosHelpMessage': 'Help is on the way. Please stay put.',
+    'sosCancel': 'Cancel',
+    'sosConfirmCancel': 'Confirm Cancellation',
+    'sosConfirmMessage': 'Are you sure you want to cancel the SOS call?',
+    'sosYesCancel': 'Yes, Cancel SOS',
+    'sosNo': 'No',
+    'ok': 'OK',
+    // ... your other labels
+  },
+  'ar': {
+    //  'dashboard': 'شفاء',
+    'sos': 'طوارئ',
+    'sosActivation': 'تفعيل الطوارئ',
+    'sosSending': 'إرسال الطوارئ خلال {seconds} ثوان...\nاضغط إلغاء للإيقاف.',
+    'sosHelpOnWay': '🚨 المساعدة في الطريق',
+    'sosHelpMessage': 'المساعدة في الطريق. يرجى البقاء في مكانك.',
+    'sosCancel': 'إلغاء',
+    'sosConfirmCancel': 'تأكيد الإلغاء',
+    'sosConfirmMessage': 'هل أنت متأكد أنك تريد إلغاء نداء الطوارئ؟',
+    'sosYesCancel': 'نعم، ألغِ الطوارئ',
+    'sosNo': 'لا',
+    'ok': 'حسناً',
+    // ... your other labels
+  }
 };
 
-const Map<String, Map<String, String>> labels = {
-  // ... (same as before)
-};
 
+ const Map<String, Map<String, String>> labels = {
+  'en': {
+    "search": "Search...",
+    'dashboard1': 'Hi',
+    'dashboard2': 'health solution',
+    'sos': 'SOS',
+    'details': 'Details',
+    'appointments': 'Appointments',
+    'payments': 'Payments',
+    'notifications': 'Notifications',
+    'shareRecords': 'Share Records',
+    'labResults': 'Lab Results',
+    'medications': 'Medications',
+    'immunizations': 'Immunizations',
+    'allergies': 'Allergies',
+    'hospitalizations': 'Hospitalizations',
+    'measures': 'Measures',
+    'notes': 'Notes',
+    'procedures': 'Procedures',
+    'correspondence': 'Correspondence',
+    'talkToMe': 'Talk to Me',
+    'language': 'Language',
+
+  },
+  'ar': {
+    "search": "بحث...",
+    'dashboard1': 'أهلاً',
+    'sos': 'طوارئ',
+    'details': 'التفاصيل',
+    'appointments': 'المواعيد',
+    'payments': 'المدفوعات',
+    'notifications': 'الإشعارات',
+    'shareRecords': 'مشاركة السجلات',
+    'labResults': 'نتائج المختبر',
+    'medications': 'الأدوية',
+    'immunizations': 'التحصينات',
+    'allergies': 'الحساسية',
+    'hospitalizations': 'الإقامة بالمستشفى',
+    'measures': 'القياسات',
+    'notes': 'الملاحظات',
+    'procedures': 'الإجراءات',
+    'correspondence': 'المراسلات',
+    'talkToMe': 'تحدث إلي',
+    'language': 'اللغة',
+  }
+};
 class UserHome extends StatefulWidget {
   const UserHome({super.key});
 
@@ -49,7 +121,7 @@ class _UserHomeState extends State<UserHome> {
   void initState() {
     super.initState();
     _loadLanguage();
-    _listenToInternet();
+ //   _listenToInternet();
   }
 
   @override
@@ -165,7 +237,7 @@ class _UserHomeState extends State<UserHome> {
                       label: item['label'],
                       icon: item['icon'],
                       onTap: () {
-                        if (!_hasInternet) return;
+                      //  if (!_hasInternet) return;
                         final selectedScreen = navigationMap[item['label']];
                         if (selectedScreen != null) {
                           Navigator.of(context).push(

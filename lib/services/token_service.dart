@@ -22,10 +22,13 @@ class TokenService {
   static final _logger = Logger('TokenService');
 
   // Replace with your LiveKit server URL
-  final String liveKitServerUrl = 'wss://test1-8otmz38g.livekit.cloud';
+ // final String liveKitServerUrl = 'wss://test1-8otmz38g.livekit.cloud';
+  final String liveKitServerUrl = 'wss://dmuh-ij21fh6r.livekit.cloud';
 
   // Your Node.js API URL
-  final String tokenApiUrl = 'https://livekit-token-generation-api-nodejs-2.onrender.com/getToken';
+ // final String tokenApiUrl = 'https://livekit-token-generation-api-nodejs-2.onrender.com/getToken';//with node js
+  //final String tokenApiUrl = 'https://livekit-token-generation-python-2.onrender.com/getToken';//with python on render
+  final String tokenApiUrl = 'http://shifaaagent.dmu.ae:8000/getToken';//with python on our company VPS
 
   /// Fetch connection details from your Node.js API
   Future<ConnectionDetails> fetchConnectionDetails({

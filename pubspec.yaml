@@ -58,6 +58,9 @@ dependencies:
   carousel_slider: ^5.1.1
   internet_connection_checker: ^3.0.1
   connectivity_plus: ^6.1.5
+  mqtt_client: ^10.0.0
+  location: ^8.0.1
+  lottie: ^3.3.2
 
 
 dev_dependencies:
@@ -89,6 +92,16 @@ flutter:
   assets:
     - assets/images/dmuh.png
     - assets/images/dmuh_resized.png
+    - assets/animations/ambulancia.json
+    - assets/animations/labresults.json
+    - assets/animations/medications.json
+    - assets/animations/notifications.json
+    - assets/animations/allergies.json
+    - assets/animations/talktome.json
+    - assets/animations/appointments.json
+    - assets/animations/profiledetails.json
+    - assets/animations/records.json
+    - assets/animations/measures.json
     - assets/terminal.png
     - assets/images/user_avatar.jpg
     - assets/images/image2.jpg

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:newone/Hospitilizations/hospitilizations.dart';
 import 'package:newone/LabResults/lab_results.dart';
 import 'package:newone/RegistrationForm/registration_form.dart';
@@ -84,11 +85,11 @@ class _ProfileState extends State<Profile> {
     final isArabic = _languageCode == 'ar';
 
     final List<Map<String, dynamic>> gridItems = [
-      {"label": profileLabels[_languageCode]!["appointments"], "icon": Icons.calendar_month},
-      {"label": profileLabels[_languageCode]!["records"], "icon": Icons.file_copy},
-      {"label": profileLabels[_languageCode]!["details"], "icon": Icons.person},
-      {"label": profileLabels[_languageCode]!["settings"], "icon": Icons.settings},
-      {"label": profileLabels[_languageCode]!["help"], "icon": Icons.help},
+      {"label": profileLabels[_languageCode]!["appointments"], "lottie": 'assets/animations/appointments.json'},
+      {"label": profileLabels[_languageCode]!["records"], "lottie": 'assets/animations/records.json'},
+      {"label": profileLabels[_languageCode]!["details"], "lottie": 'assets/animations/profiledetails.json'},
+      {"label": profileLabels[_languageCode]!["settings"], "lottie": 'assets/animations/records.json'},
+      {"label": profileLabels[_languageCode]!["help"], "lottie": 'assets/animations/records.json'},
     ];
 
     return Directionality(
@@ -166,9 +167,8 @@ class _ProfileState extends State<Profile> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Colors.blue.shade700,
+                              Colors.blue.shade600,
                               Colors.blue.shade400,
-                              Colors.purple.shade400,
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -185,13 +185,14 @@ class _ProfileState extends State<Profile> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(item['icon'], size: 40, color: Colors.white),
+                          SizedBox(height: 100,width: 100,child: Lottie.asset(item['lottie'])),
+                            //  Icon(item['icon'], size: 40, color: Colors.white),
                             const SizedBox(height: 10),
                             Text(
                               item['label'] ?? '',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),

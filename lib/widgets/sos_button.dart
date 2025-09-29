@@ -1,9 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../controllers/sosctrl.dart';
+
 class SosButton extends StatefulWidget {
-  const SosButton({super.key});
+  final VoidCallback? onSosDispatched;
+  final VoidCallback? onSosCancelled;
+
+  const SosButton({super.key, this.onSosDispatched, this.onSosCancelled});
 
   @override
   State<SosButton> createState() => _SosButtonState();
@@ -25,6 +32,7 @@ class _SosButtonState extends State<SosButton> {
       'sosYesCancel': 'Yes, Cancel SOS',
       'sosNo': 'No',
       'ok': 'OK',
+      'cancelSos': 'Cancel SOS',
     },
     'ar': {
       'sos': 'طوارئ',
@@ -38,6 +46,7 @@ class _SosButtonState extends State<SosButton> {
       'sosYesCancel': 'نعم، ألغِ الطوارئ',
       'sosNo': 'لا',
       'ok': 'حسناً',
+      'cancelSos': 'إلغاء الطوارئ',
     }
   };
 
@@ -58,82 +67,137 @@ class _SosButtonState extends State<SosButton> {
   Widget build(BuildContext context) {
     final soslabelMap = SOSlabels[_languageCode]!;
 
-    return ElevatedButton(
-      onPressed: () => _showSosDialog(soslabelMap),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.red,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      child: Text(
-        soslabelMap['sos']!,
-        style: const TextStyle(
-            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-      ),
+    return Consumer<SosCtrl>(
+      builder: (context, sosCtrl, _) {
+        return
+          ElevatedButton(
+          onPressed: () {
+            if (sosCtrl.isActive) {
+              _showCancelConfirmDialog(soslabelMap, () {
+                sosCtrl.deactivate();
+                widget.onSosCancelled?.call();
+              });
+            } else {
+              _showSosDialog(soslabelMap, sosCtrl);
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Optional Lottie animation
+              SizedBox(
+                width: 50,
+                height: 50,
+                child: Lottie.asset(
+                  'assets/animations/ambulancia.json',
+                  repeat: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                sosCtrl.isActive ? soslabelMap['cancelSos']! : soslabelMap['sos']!,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 50,
+                height: 50,
+                child: Lottie.asset(
+                  'assets/animations/ambulancia.json',
+                  repeat: true,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  void _showSosDialog(Map<String, String> soslabelMap) {
+  void _showSosDialog(Map<String, String> soslabelMap, SosCtrl sosCtrl) {
     int countdown = 5;
     bool isCancelled = false;
     bool helpDispatched = false;
+
+    Timer? timer; // declare first
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
-          Timer.periodic(const Duration(seconds: 1), (timer) {
-            if (isCancelled || helpDispatched) {
-              timer.cancel();
-              return;
-            }
-            if (countdown == 1) {
-              timer.cancel();
-              setState(() {
-                countdown = 0;
-                helpDispatched = true;
-              });
-            } else {
-              setState(() {
-                countdown--;
-              });
-            }
-          });
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            // Start the timer only once
+            if (timer == null) {
+              timer = Timer.periodic(const Duration(seconds: 1), (_) {
+                if (isCancelled || helpDispatched) {
+                  timer?.cancel();
+                  return;
+                }
 
-          return AlertDialog(
-            title: Text(
-              helpDispatched
-                  ? soslabelMap['sosHelpOnWay']!
-                  : soslabelMap['sosActivation']!,
-            ),
-            content: Text(
-              helpDispatched
-                  ? soslabelMap['sosHelpMessage']!
-                  : soslabelMap['sosSending']!.replaceFirst('{seconds}', countdown.toString()),
-            ),
-            actions: [
-              if (!helpDispatched)
-                TextButton(
-                  onPressed: () => _showCancelConfirmDialog(soslabelMap, () {
-                    isCancelled = true;
-                    Navigator.of(context).pop(); // close SOS dialog
-                  }),
-                  child: Text(
-                    soslabelMap['sosCancel']!,
-                    style: const TextStyle(color: Colors.red),
+                if (countdown == 1) {
+                  timer?.cancel();
+                  helpDispatched = true;
+                  sosCtrl.activate();
+                  widget.onSosDispatched?.call();
+                } else {
+                  countdown--;
+                }
+
+                setStateDialog(() {}); // rebuild dialog to update countdown
+              });
+            }
+
+            return AlertDialog(
+              title: Text(
+                helpDispatched
+                    ? soslabelMap['sosHelpOnWay']!
+                    : soslabelMap['sosActivation']!,
+              ),
+              content: Text(
+                helpDispatched
+                    ? soslabelMap['sosHelpMessage']!
+                    : soslabelMap['sosSending']!
+                    .replaceFirst('{seconds}', countdown.toString()),
+              ),
+              actions: [
+                if (!helpDispatched)
+                  TextButton(
+                    onPressed: () {
+                      _showCancelConfirmDialog(soslabelMap, () {
+                        isCancelled = true;
+                        sosCtrl.deactivate();
+                        widget.onSosCancelled?.call();
+                        Navigator.of(context).pop();
+                      });
+                    },
+                    child: Text(
+                      soslabelMap['sosCancel']!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   ),
-                ),
-              if (helpDispatched)
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(soslabelMap['ok']!),
-                ),
-            ],
-          );
-        });
+                if (helpDispatched)
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(soslabelMap['ok']!),
+                  ),
+              ],
+            );
+          },
+        );
       },
     );
   }
@@ -142,28 +206,26 @@ class _SosButtonState extends State<SosButton> {
       Map<String, String> soslabelMap, VoidCallback onCancel) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(soslabelMap['sosConfirmCancel']!),
-          content: Text(soslabelMap['sosConfirmMessage']!),
-          actions: [
-            TextButton(
-              onPressed: () {
-                onCancel();
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                soslabelMap['sosYesCancel']!,
-                style: const TextStyle(color: Colors.red),
-              ),
+      builder: (context) => AlertDialog(
+        title: Text(soslabelMap['sosConfirmCancel']!),
+        content: Text(soslabelMap['sosConfirmMessage']!),
+        actions: [
+          TextButton(
+            onPressed: () {
+              onCancel();
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              soslabelMap['sosYesCancel']!,
+              style: const TextStyle(color: Colors.red),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(soslabelMap['sosNo']!),
-            ),
-          ],
-        );
-      },
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(soslabelMap['sosNo']!),
+          ),
+        ],
+      ),
     );
   }
 }

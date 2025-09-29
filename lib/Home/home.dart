@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:location/location.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:newone/app.dart';
 import 'package:newone/widgets/sos_button.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Allergies/allergies_page.dart';
 import '../Immunizations/immunizations.dart';
@@ -102,6 +108,17 @@ class UserHome extends StatefulWidget {
 }
 
 class _UserHomeState extends State<UserHome> {
+  StreamSubscription<LocationData>? _locationSubscription;
+
+  late MqttServerClient client;
+  final String broker = '90faaba835de4202b744d0e0898e0c15.s1.eu.hivemq.cloud';
+  final int port = 8883;
+  final String username = 'altamash';
+  final String password = 'Osmanabad@1';
+  final String topic = 'Shifaa/location/${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
+  Timer? _locationTimer;
+  final Location _location = Location();
+  ////////////////////////////////////////////
   String userName = '';
   String userMobile = '';
   String userImage = 'assets/images/user_avatar.png';
@@ -115,18 +132,189 @@ class _UserHomeState extends State<UserHome> {
     'assets/images/image2.jpg',
     'assets/images/image3.png',
     'assets/images/image2.jpg',
-  ];
+  ];/*
+  void _startSendingLocationnew() async {
+    _locationTimer?.cancel(); // cancel existing timer if any
+
+    // Ensure location services are enabled
+    bool serviceEnabled = await _location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _location.requestService();
+      if (!serviceEnabled) return;
+    }
+
+    // Ensure permissions are granted
+    PermissionStatus permissionGranted = await _location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) return;
+    }
+
+    // Start sending location every 30 seconds
+    _locationTimer = Timer.periodic(const Duration(seconds: 4), (_) async {
+      try {
+        LocationData userLocation = await _location.getLocation();
+        final latitude = userLocation.latitude;
+        final longitude = userLocation.longitude;
+
+        if (latitude != null && longitude != null) {
+          final message = '{"lat":$latitude,"lng":$longitude,"timestamp":"${DateTime.now().toIso8601String()}"}';
+          publish(topic, message);
+          print('Location sent: $message');
+        }
+      } catch (e) {
+        print('Error getting location: $e');
+      }
+    });
+  }*/
+
+
+  void _startSendingLocation() async {
+    // Cancel any existing subscription
+    // Cancel any existing subscription first
+    if (_locationSubscription != null) {
+      await _locationSubscription!.cancel();
+      _locationSubscription = null;
+      print("Previous location subscription canceled");
+    }
+    // 1️⃣ Ensure location services are enabled
+    bool serviceEnabled = await _location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _location.requestService();
+      if (!serviceEnabled) return;
+    }
+
+    // 2️⃣ Request foreground location
+    var status = await Permission.locationWhenInUse.status;
+    if (!status.isGranted) {
+      status = await Permission.locationWhenInUse.request();
+      if (!status.isGranted) return; // user denied
+    }
+
+    // 3️⃣ Request background location (Android 10+)
+    if (Platform.isAndroid) {
+      var bgStatus = await Permission.locationAlways.status;
+      if (!bgStatus.isGranted) {
+        bgStatus = await Permission.locationAlways.request();
+        if (!bgStatus.isGranted) {
+          print("Background location denied. Please allow 'Always allow' in settings.");
+          return;
+        }
+      }
+    }
+
+    // 4️⃣ Enable background mode for the location plugin
+    await _location.enableBackgroundMode(enable: true);
+    // Set custom interval
+    _location.changeSettings(
+      accuracy: LocationAccuracy.high,
+      interval: 5000, // 5 seconds
+      distanceFilter: 5, // update even if not moved
+    );
+
+    // 5️⃣ Listen to location updates
+    _locationSubscription = _location.onLocationChanged.listen((LocationData userLocation) {
+      final latitude = userLocation.latitude;
+      final longitude = userLocation.longitude;
+
+      if (latitude != null && longitude != null) {
+        final message =
+            '{"lat":$latitude,"lng":$longitude,"timestamp":"${DateTime.now().toIso8601String()}"}';
+        publish(topic, message);
+        print('Location sent: $message');
+      }
+    });
+  }
+
+
+
+  void _stopSendingLocation() {
+    _locationSubscription?.cancel();
+    _locationSubscription = null;
+
+    _locationTimer?.cancel();
+    _locationTimer = null;
+  }
 
   @override
   void initState() {
     super.initState();
     _loadLanguage();
+    connect();
  //   _listenToInternet();
   }
+
+  Future<void> connect() async {
+    client = MqttServerClient.withPort(broker, '', port);
+    client.logging(on: true);
+    client.secure = true; // SSL
+    client.securityContext = SecurityContext.defaultContext;
+    client.keepAlivePeriod = 20;
+    client.onDisconnected = onDisconnected;
+    client.onConnected = onConnected;
+    client.onSubscribed = onSubscribed;
+
+    final connMess = MqttConnectMessage()
+        .withClientIdentifier('flutter_client_${DateTime.now().millisecondsSinceEpoch}')
+        .authenticateAs(username, password)
+        .keepAliveFor(20)
+        .withWillQos(MqttQos.atMostOnce);
+
+    client.connectionMessage = connMess;
+
+    try {
+      await client.connect();
+      print("connected to mqtt server");
+    } catch (e) {
+      print('Exception: $e');
+      disconnect();
+    }
+
+    /*client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMess = c![0].payload as MqttPublishMessage;
+      final message =
+      MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      print('Received message: $message from topic: ${c[0].topic}');
+      setState(() {
+    //    receivedMessage = message;
+      });
+    });*/
+
+    subscribe(topic);
+  }
+
+  void onConnected() {
+    print('Connected to MQTT broker');
+  }
+
+  void onDisconnected() {
+    print('Disconnected from MQTT broker');
+  }
+
+  void onSubscribed(String topic) {
+    print('Subscribed to $topic');
+  }
+
+  void disconnect() {
+    client.disconnect();
+  }
+
+  void subscribe(String topic) {
+    client.subscribe(topic, MqttQos.atMostOnce);
+  }
+
+  void publish(String topic, String message) {
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(message);
+    client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
+  }
+
 
   @override
   void dispose() {
     _subscription?.cancel();
+    _locationTimer?.cancel();
+
     super.dispose();
   }
 
@@ -169,13 +357,22 @@ class _UserHomeState extends State<UserHome> {
     final labelsMap = labels[_languageCode]!;
     final isArabic = _languageCode == 'ar';
 
-    final List<Map<String, dynamic>> gridItems = [
+/*    final List<Map<String, dynamic>> gridItems = [
       {'label': labelsMap['notifications'], 'icon': Icons.notifications},
       {'label': labelsMap['labResults'], 'icon': Icons.biotech},
       {'label': labelsMap['medications'], 'icon': Icons.medication},
       {'label': labelsMap['allergies'], 'icon': Icons.warning},
       {'label': labelsMap['measures'], 'icon': Icons.monitor_heart},
       {'label': labelsMap['talkToMe'], 'icon': Icons.record_voice_over},
+    ];*/
+
+    final List<Map<String, dynamic>> gridItems = [
+      {'label': labelsMap['notifications'], 'lottie': 'assets/animations/notifications.json'},
+      {'label': labelsMap['labResults'], 'lottie': 'assets/animations/labresults.json'},
+      {'label': labelsMap['medications'], 'lottie': 'assets/animations/medications.json'},
+      {'label': labelsMap['allergies'], 'lottie': 'assets/animations/allergies.json'},
+      {'label': labelsMap['measures'], 'lottie': 'assets/animations/measures.json'},
+      {'label': labelsMap['talkToMe'], 'lottie': 'assets/animations/talktome.json'},
     ];
 
     final navigationMap = {
@@ -197,11 +394,14 @@ class _UserHomeState extends State<UserHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 20),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: SizedBox(
                     width: double.infinity,
-                    child: SosButton(),
+                    child: SosButton(
+                      onSosDispatched: _startSendingLocation,
+                      onSosCancelled: _stopSendingLocation,
+                    ),
                   ),
                 ),
                 Padding(
@@ -216,7 +416,7 @@ class _UserHomeState extends State<UserHome> {
                         hintText: labelsMap['search'] ?? "Search...",
                         prefixIcon: const Icon(Icons.search, color: Colors.grey),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+
                       ),
                     ),
                   ),
@@ -235,7 +435,7 @@ class _UserHomeState extends State<UserHome> {
                     final item = gridItems[index];
                     return _GridItem(
                       label: item['label'],
-                      icon: item['icon'],
+                      icon: item['lottie'],
                       onTap: () {
                       //  if (!_hasInternet) return;
                         final selectedScreen = navigationMap[item['label']];
@@ -253,7 +453,7 @@ class _UserHomeState extends State<UserHome> {
                   width: double.infinity,
                   child: CarouselSlider(
                     options: CarouselOptions(
-                      height: 230,
+                      height: 260,
                       autoPlay: true,
                       autoPlayInterval: const Duration(seconds: 4),
                       enlargeCenterPage: true,
@@ -283,13 +483,13 @@ class _UserHomeState extends State<UserHome> {
     );
   }
 }
-
 class _GridItem extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final String icon;
   final VoidCallback onTap;
 
   const _GridItem({
+    super.key,
     required this.label,
     required this.icon,
     required this.onTap,
@@ -297,42 +497,48 @@ class _GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue.shade700,
-              Colors.blue.shade400,
-              Colors.purple.shade400,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.hardEdge, // ensures ripple effect stays inside
+      child: InkWell(
+        onTap: onTap,
+        splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+        highlightColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.blue.shade600,
+                Colors.blue.shade400,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blueAccent.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: Colors.white),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+          //    Icon(icon, size: 40, color: Colors.white),
+              SizedBox(height:40,width: 40 ,child: Lottie.asset(icon)),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+

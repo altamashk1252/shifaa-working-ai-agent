@@ -10,14 +10,17 @@ import 'package:newone/controllers/app_ctrl.dart' as ctrl;
 import 'package:newone/widgets/button.dart' as buttons;
 import 'package:provider/provider.dart';
 
+import 'controllers/sosctrl.dart';
+
 
 void main() {
   runApp(
-
-    ChangeNotifierProvider(
-      create: (_) => ctrl.AppCtrl(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ctrl.AppCtrl()),
+        ChangeNotifierProvider(create: (_) => SosCtrl()), // Add SOS provider
+      ],
       child: const MyApp(),
-
     ),
   );
 }

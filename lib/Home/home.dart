@@ -9,6 +9,7 @@ import 'package:lottie/lottie.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:newone/app.dart';
+import 'package:newone/services/locationService.dart';
 import 'package:newone/widgets/sos_button.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -169,7 +170,7 @@ class _UserHomeState extends State<UserHome> {
   }*/
 
 
-  void _startSendingLocation() async {
+/*  void _startSendingLocation() async {
     // Cancel any existing subscription
     // Cancel any existing subscription first
     if (_locationSubscription != null) {
@@ -224,7 +225,7 @@ class _UserHomeState extends State<UserHome> {
         print('Location sent: $message');
       }
     });
-  }
+  }*/
 
 
 
@@ -240,11 +241,14 @@ class _UserHomeState extends State<UserHome> {
   void initState() {
     super.initState();
     _loadLanguage();
-    connect();
+    // connect to MQTT once
+    LocationService().initMQTT();
+
+   // connect();
  //   _listenToInternet();
   }
 
-  Future<void> connect() async {
+/*  Future<void> connect() async {
     client = MqttServerClient.withPort(broker, '', port);
     client.logging(on: true);
     client.secure = true; // SSL
@@ -270,7 +274,7 @@ class _UserHomeState extends State<UserHome> {
       disconnect();
     }
 
-    /*client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+    *//*client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final recMess = c![0].payload as MqttPublishMessage;
       final message =
       MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
@@ -278,7 +282,7 @@ class _UserHomeState extends State<UserHome> {
       setState(() {
     //    receivedMessage = message;
       });
-    });*/
+    });*//*
 
     subscribe(topic);
   }
@@ -307,7 +311,7 @@ class _UserHomeState extends State<UserHome> {
     final builder = MqttClientPayloadBuilder();
     builder.addString(message);
     client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
-  }
+  }*/
 
 
   @override
@@ -399,8 +403,8 @@ class _UserHomeState extends State<UserHome> {
                   child: SizedBox(
                     width: double.infinity,
                     child: SosButton(
-                      onSosDispatched: _startSendingLocation,
-                      onSosCancelled: _stopSendingLocation,
+              /*        onSosDispatched: _startSendingLocation,
+                      onSosCancelled: _stopSendingLocation,*/
                     ),
                   ),
                 ),
@@ -429,7 +433,7 @@ class _UserHomeState extends State<UserHome> {
                     crossAxisCount: 3,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 1,
+                    childAspectRatio: 0.9,
                   ),
                   itemBuilder: (context, index) {
                     final item = gridItems[index];
@@ -483,6 +487,7 @@ class _UserHomeState extends State<UserHome> {
     );
   }
 }
+
 class _GridItem extends StatelessWidget {
   final String label;
   final String icon;
@@ -508,7 +513,7 @@ class _GridItem extends StatelessWidget {
         splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
         highlightColor: Colors.transparent,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -523,8 +528,8 @@ class _GridItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
           //    Icon(icon, size: 40, color: Colors.white),
-              SizedBox(height:40,width: 40 ,child: Lottie.asset(icon)),
-              const SizedBox(height: 12),
+              SizedBox(height:55,width: 55 ,child: Lottie.asset(icon)),
+              const SizedBox(height: 10),
               Text(
                 label,
                 textAlign: TextAlign.center,

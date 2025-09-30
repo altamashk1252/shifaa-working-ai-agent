@@ -88,8 +88,8 @@ class _ProfileState extends State<Profile> {
       {"label": profileLabels[_languageCode]!["appointments"], "lottie": 'assets/animations/appointments.json'},
       {"label": profileLabels[_languageCode]!["records"], "lottie": 'assets/animations/records.json'},
       {"label": profileLabels[_languageCode]!["details"], "lottie": 'assets/animations/profiledetails.json'},
-      {"label": profileLabels[_languageCode]!["settings"], "lottie": 'assets/animations/records.json'},
-      {"label": profileLabels[_languageCode]!["help"], "lottie": 'assets/animations/records.json'},
+      {"label": profileLabels[_languageCode]!["settings"], "lottie": 'assets/animations/settings.json'},
+      {"label": profileLabels[_languageCode]!["help"], "lottie": 'assets/animations/help.json'},
     ];
 
     return Directionality(
